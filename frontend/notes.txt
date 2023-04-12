@@ -1,0 +1,6 @@
+references:
+https://dev.to/andrewezeani/how-to-create-absolute-imports-in-vite-react-app-a-step-by-step-guide-28co
+https://github.com/mui/material-ui/tree/v5.12.0/docs/data/material/getting-started/templates/sign-in
+https://github.com/mui/material-ui/blob/v5.12.0/docs/data/material/getting-started/templates/sign-up
+https://github.com/mui/material-ui/tree/v5.12.0/docs/data/material/getting-started/templates/dashboard
+https://reactrouter.com/en/main/start/tutorial
