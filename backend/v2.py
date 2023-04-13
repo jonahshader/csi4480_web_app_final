@@ -166,16 +166,19 @@ async def transfer(user_token: int, dest_email: str, amount: int, request: Reque
     if not is_request_allowed(user_token, request.client.host):
         return {'token_expired': True}
     if amount < 0:
+        print('Amount must be positive')
         return {"success": False}
     sender = user_token_to_user(user_token)
     receiver = user_email_to_user(dest_email)
     if sender is None or receiver is None:
+        print('Sender or receiver not found')
         return {"success": False}
     if sender['balance'] < amount:
+        print('Sender does not have enough money')
         return {"success": False}
     sender['balance'] -= amount
     receiver['balance'] += amount
-    return {'success': False}
+    return {'success': True}
 
 #curl -X POST "localhost:8000/create_account?email=cool@gmail.com&password=cool&fname=cool&lname=cool&p_number=1234567890&ssn=123456789"
 @app.post('/create_account', tags=['create account'])
@@ -208,5 +211,5 @@ async def logout(user_token: int):
     return {"success": True}
 
 if __name__ == '__main__':
-    uvicorn.run('backend.v2:app', host='0.0.0.0', port=8000, reload=True)
-    # uvicorn.run('v1:app', host='0.0.0.0', port=8000, reload=True)
+    #uvicorn.run('backend.v2:app', host='0.0.0.0', port=8000, reload=True)
+    uvicorn.run('v2:app', host='0.0.0.0', port=8000, reload=True)
