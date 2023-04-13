@@ -18,9 +18,9 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { MuiTelInput } from 'mui-tel-input'
 
-import { useStore } from 'src/App'
+import { useStore, router } from 'src/main'
 
-const SignUpLinkBehavior = React.forwardRef((props, ref) => (
+const SignInLinkBehavior = React.forwardRef((props, ref) => (
   <RouterLink ref={ref} to="/sign-in" {...props} />
 ));
 
@@ -53,10 +53,34 @@ export default function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const email = data.get('email');
+    const password = data.get('password');
+    const fname = data.get('firstName');
+    const lname = data.get('lastName');
+    const ssn = data.get('ssn');
+    // console.log({
+    //   email: data.get('email'),
+    //   password: data.get('password'),
+    // });
+
+    const createAccount = async () => {
+      const response = await fetch(`http://localhost:8000/create_account?email=${email}&password=${password}&fname=${fname}&lname=${lname}&p_number=${phone}&ssn=${ssn}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data['success'] == true) {
+        // goto signIn
+        router.navigate('/sign-in')
+      }
+    }
+
+    createAccount();
+
   };
 
   return (
@@ -121,6 +145,17 @@ export default function SignUp() {
                   autoComplete="new-password"
                 />
               </Grid>
+              {/* SSN */}
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="ssn"
+                  label="SSN"
+                  type="password"
+                  id="ssn"
+                  />
+              </Grid>
               <Grid item xs={12}>
                 <MuiTelInput value={phone} onChange={changePhone} />
               </Grid>
@@ -141,7 +176,7 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="center">
               <Grid item>
-                <Link variant="body2" component={SignUpLinkBehavior}>
+                <Link variant="body2" component={SignInLinkBehavior}>
                   Already have an account? Sign in
                 </Link>
               </Grid>

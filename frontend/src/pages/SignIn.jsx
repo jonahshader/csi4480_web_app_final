@@ -13,7 +13,12 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, redirect } from 'react-router-dom';
+
+import { useState } from 'react';
+
+import { useStore, router } from 'src/main';
+
 
 const SignUpLinkBehavior = React.forwardRef((props, ref) => (
   <RouterLink ref={ref} to="/sign-up" {...props} />
@@ -22,35 +27,53 @@ const SignUpLinkBehavior = React.forwardRef((props, ref) => (
 const theme = createTheme();
 
 export default function SignIn() {
+  const setToken = useStore((s)=>s.setUserToken)
+  const fetchData = useStore((s)=>s.fetchData)
+  const [signInStatus, setSignInStatus] = useState('');
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
 
     const email = data.get('email');
     const password = data.get('password');
 
     const authenticate = async () => {
-      const response = await fetch(`http://127.0.0.1:8000/authenticate?email=${email}&password=${password}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(`http://localhost:8000/authenticate?email=${email}&password=${password}`);
+
       const data = await response.json();
+      console.log("data:")
       console.log(data);
 
-      if (data.status === 'success') {
-        window.location.href = '/dashboard';
+      if (data['success']) {
+        // set user_token in zustand store
+        setToken(data['user_token'])
+
+        setSignInStatus('success');
+        // redirect('/dashboard');
+        await fetchData(); // block here to wait for data to be fetched
+        router.navigate('/dashboard');
+        
+      } else {
+        setSignInStatus('fail');
       }
 
       return data;
     };
 
+    if (email && password) {
+      authenticate();
+    }
+    
+  };
 
+  const signInStatusMessage = () => {
+    if (signInStatus === 'success') {
+      return <Typography component="h1" variant="h5" color="success">Sign in successful</Typography>;
+    } else if (signInStatus === 'fail') {
+      return <Typography component="h1" variant="h5" color="error">Sign in failed</Typography>;
+    } else {
+      return <Typography component="h1" variant="h5"></Typography>;
+    }
   };
 
   return (
@@ -122,6 +145,7 @@ export default function SignIn() {
             </Grid>
           </Box>
         </Box>
+        {signInStatusMessage()}
         {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
       </Container>
     </ThemeProvider>
